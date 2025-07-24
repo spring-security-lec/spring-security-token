@@ -11,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
+    // 서비스에서 사용하기 위해 bean 에 등록함
     @Bean
     public BCryptPasswordEncoder encodePwd() {
         return new BCryptPasswordEncoder();
@@ -26,8 +27,9 @@ public class SecurityConfig {
         // 내부적으로 UsernamePasswordAuthenticationFilter가 동작
         http.formLogin(form -> form
                 .loginPage("/login-form") // 인증이 필요하면 내가 지정한 url 로 리다이렉트 함
-                .loginProcessingUrl("/login") // 인증필터가 처리하는 url, username=ssar&password=1234 이 타입으로 만 처리함
-                .defaultSuccessUrl("/main")); // 인증이 성공하면 해당 url 주소로 보냄
+                .loginProcessingUrl("/login") // 인증필터가 처리하는 url(변경가능), username=ssar&password=1234 이 타입으로 만 처리함
+//                .usernameParameter("email") // username 을 email 로 변경 가능
+                .defaultSuccessUrl("/main"));
 
         // HTTP 요청에 대해 인가(authorization) 설정을 시작
         // 내부적으로 AuthorizationFilter 설정에 해당
