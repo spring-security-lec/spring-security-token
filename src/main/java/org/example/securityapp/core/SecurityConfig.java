@@ -19,6 +19,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // h2 console은 iframe으로 동작하므로, 이 설정이 필요하다
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+
         // 토큰이 없는 form 요청을 막는 것을 막았다
         http.csrf(configure -> configure.disable());
 
@@ -35,8 +38,12 @@ public class SecurityConfig {
         // 내부적으로 AuthorizationFilter 설정에 해당
         http.authorizeHttpRequests(
                 authorize -> authorize
-                        .requestMatchers("/user/**", "/main") // 경로 패턴에 대해 인가 규칙을 지정
+                        .requestMatchers("/main") // 경로 패턴에 대해 인가 규칙을 지정
                         .authenticated() // 위 주소로 요청이 오면 인증 확인. 세션에 authentication 객체 유무 확인
+                        .requestMatchers("/user/**")
+                        .hasRole("USER")
+                        .requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
                         .anyRequest() // 위에서 명시하지 않은 나머지 모든 요청을 지정
                         .permitAll() // .anyRequest()로 지정된 모든 경로는 누구나 접근 가능 (인증 필요 없음)
         );
