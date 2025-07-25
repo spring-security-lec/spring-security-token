@@ -32,8 +32,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             // 직접 인증 토큰을 만들어서 Authentication 객체를 생성한다
             Authentication authentication = new UsernamePasswordAuthenticationToken(
-                    user,
-                    null,
+                    user, // 이 값이 null 이면 인증 처리 부분에서 빠꾸 먹인다
+                    null, // password 가 들어가는 부분. 필수가 아니다. null 처리하는게 좋다. 넣으려면 db 조회 해야한다
                     user.getAuthorities()
             );
 
