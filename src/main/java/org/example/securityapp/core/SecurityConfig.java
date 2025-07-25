@@ -2,10 +2,14 @@ package org.example.securityapp.core;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 // localhost:8080/user/asidfj
 // localhost:8080/join-form
@@ -52,8 +56,14 @@ public class SecurityConfig {
         http.httpBasic(basicLogin -> basicLogin.disable());
 
         // 6. 커스텀 필터 장착 (인가 필터) - 로그인은 컨트롤러에서 직접처리
+        // 넣고 싶은 필터와 위치를 넣어 주면 된다
+        http.addFilterBefore(new JwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         // 7. 예외처리 핸들러 등록 (인증/인가 가 완료되면 어떻게할지(후처리), 예외가 발생하면 어떻게 할지). 예외처리 핸들러 수정
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(new Jwt401Handler())  // 인증 실패 시 응답 정의 (예: "로그인 필요")
+                .accessDeniedHandler(new Jwt403Handler())       // 권한 부족 시 응답 정의 (예: "접근 권한 없음")
+        );
 
         // HTTP 요청에 대해 인가(authorization) 설정을 시작
         // 내부적으로 AuthorizationFilter 설정에 해당
@@ -70,5 +80,19 @@ public class SecurityConfig {
         );
 
         return http.build();
+    }
+
+    // 시큐리티 컨텍스트 홀더에 세션 저장할 때 사용하는 클래스
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    // JWT 필터 설정을 위한 커스텀 DSL
+    public class CustomSecurityFilterManager extends AbstractHttpConfigurer<CustomSecurityFilterManager, HttpSecurity> {
+        @Override
+        public void configure(HttpSecurity builder) throws Exception {
+
+        }
     }
 }
