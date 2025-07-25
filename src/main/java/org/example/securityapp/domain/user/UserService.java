@@ -29,14 +29,6 @@ public class UserService implements UserDetailsService {
     // 스프링 시큐리티가 로그인시 사용하는 UserDetailsService 의 loadUserByUsername 메서드를 재정의해서 사용함
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-
-        if (user == null) {
-            return null;
-        } else {
-            // UserDetails 타입으로 리턴하기 위해 커스텀 객체를 만들어 리턴 한다
-            return new PrincipalDetails(user);
-        }
-
+        return userRepository.findByUsername(username);
     }
 }

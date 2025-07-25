@@ -22,8 +22,12 @@ public class UserRepository {
     }
 
     public User findByUsername(String username) {
-        Query query = em.createNativeQuery("select * from user_tb where username = ?", User.class);
-        query.setParameter(1, username);
-        return (User) query.getSingleResult();
+        try {
+            Query query = em.createNativeQuery("select * from user_tb where username = ?", User.class);
+            query.setParameter(1, username);
+            return (User) query.getSingleResult();
+        } catch (Exception e) { // 못찾으면 예외가 발생
+            return null;
+        }
     }
 }
